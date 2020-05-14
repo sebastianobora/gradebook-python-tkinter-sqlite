@@ -334,5 +334,4 @@ class DatabaseManagementClass(AdminDB, LoginDB, TeacherDB, StudentDB):
 
 
 db = DatabaseManagementClass('gradebook.db')
-
 # db.add_user('1', '1', '1', '1', '1', '1', '2') # admin

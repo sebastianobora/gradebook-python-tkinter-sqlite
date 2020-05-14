@@ -9,11 +9,6 @@ import copy
 curr_id: str
 
 
-class AbsentLateException(Exception):
-    def __str__(self):
-        return 'Absent student cant have late!'
-
-
 class MainWindow:
     def __init__(self, master):
         self.frame = master
@@ -575,7 +570,7 @@ class Teacher(MainWindow):
         self.head_l.place(x=0, y=0)
 
         # select button
-        self.select = Button(self.frame, text='Log in', width=15, command=self.new_dates_and_go_to_manage, bg='snow')
+        self.select = Button(self.frame, text='Select', width=15, command=self.new_dates_and_go_to_manage, bg='snow')
         self.select.place(x=400, y=130)
         # change password button
         self.change_pass = Button(self.frame, text='Change password', width=22,
@@ -622,15 +617,14 @@ class Teacher(MainWindow):
         self.pass_entry.place(x=320, y=130)
 
     def change_password(self):
-        if self.pass_text.get() != '' and len(self.pass_text.get()) >= 6:
+        if self.pass_text.get() != '':
             db.change_password(curr_id, self.pass_text.get())
             print(self.pass_text.get())
             self.pass_text.set('')
             self.pass_entry.delete(0, END)
             messagebox.showinfo("Succes!", "Password has been changed!")
         else:
-            self.pass_entry.delete(0, END)
-            messagebox.showerror("Warning!", "Password too short!\nminimum 6 characters")
+            messagebox.showerror("Warning!", "Type new password!")
 
     def go_to_change_password(self):
         self.clear_frame()
@@ -748,8 +742,8 @@ class Teacher(MainWindow):
         try:
             if self.tree_a.selection() != ():
                 temp_list_of_dict_subj = [self.tree_a.set(i) for i in self.tree_a.selection()]
-                self.selected_att = copy.deepcopy(temp_list_of_dict_subj)
-                if self.selected_att[0]['Late'] == '0':
+                self.selected_sub = copy.deepcopy(temp_list_of_dict_subj)
+                if self.selected_sub[0]['Late'] == '0':
                     self.late_chck.deselect()
                 else:
                     self.late_chck.select()
@@ -765,7 +759,7 @@ class Teacher(MainWindow):
 
     def set_present(self):
         try:
-            for i in self.selected_att:
+            for i in self.selected_sub:
                 print(int(i[self.columns_a[0]]))
                 db.set_present(i[self.columns_a[0]], self.curr_s_id, self.selected_date['Date'])
             self.attendance_show()
@@ -774,7 +768,7 @@ class Teacher(MainWindow):
 
     def set_absent(self):
         try:
-            for i in self.selected_att:
+            for i in self.selected_sub:
                 print(int(i[self.columns_a[0]]))
                 db.set_absent(i[self.columns_a[0]], self.curr_s_id, self.selected_date['Date'])
             self.attendance_show()
@@ -783,21 +777,11 @@ class Teacher(MainWindow):
 
     def set_late(self):
         try:
-            for i in self.selected_att:
-                att = db.fetch_att_student_date(i[self.columns_a[0]], self.curr_s_id, self.selected_date['Date'])
-                att = int(att[0][0])
-                if att:
-                    db.set_late(i[self.columns_a[0]], self.curr_s_id, self.selected_date['Date'], self.late.get())
-                else:
-                    self.late_chck.deselect()
-                    raise AbsentLateException
-        except AbsentLateException as err:
-            messagebox.showwarning('Warning!', err)
-            pass
+            for i in self.selected_sub:
+                db.set_late(i[self.columns_a[0]], self.curr_s_id, self.selected_date['Date'], self.late.get())
+            self.attendance_show()
         except AttributeError:
             pass
-        finally:
-            self.attendance_show()
 
     def attendance_show(self):
         for i in self.tree_a.get_children():
@@ -1064,15 +1048,14 @@ class Student(MainWindow):
         self.pass_entry.place(x=320, y=130)
 
     def change_password(self):
-        if self.pass_text.get() != '' and len(self.pass_text.get()) >= 6:
+        if self.pass_text.get() != '':
             db.change_password(curr_id, self.pass_text.get())
             print(self.pass_text.get())
             self.pass_text.set('')
             self.pass_entry.delete(0, END)
             messagebox.showinfo("Succes!", "Password has been changed!")
         else:
-            messagebox.showerror("Warning!", "Password too short!\nminimum 6 characters")
-            self.pass_entry.delete(0, END)
+            messagebox.showerror("Warning!", "Type new password!")
 
     def go_to_change_password(self):
         self.clear_frame()
