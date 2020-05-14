@@ -5,7 +5,9 @@ Project has 3 panels:
 **Admin:**
 
 current login and passsword:
+
 ID: 11 
+
 PW: 1
 
 From the panel you can:
@@ -16,8 +18,11 @@ From the panel you can:
 **Teacher:**
 
 current login and password:
+
 e.g:
+
 ID: kpalka
+
 PW: matematyka
 
 From the panel you can:
