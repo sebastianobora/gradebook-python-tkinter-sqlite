@@ -35,8 +35,11 @@ From the panel you can:
 **Teacher:**
 
 current login and password:
+
 e.g:
+
 ID: mmatczak
+
 PW: mata123
 
 From the panel you can:
