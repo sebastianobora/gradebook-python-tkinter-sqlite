@@ -14,12 +14,13 @@ db = db_admin.DatabaseManagementClass('gradebook.db')
 CURR_ID: str
 
 # colours
+
 FRAME_BACKGROUND_COLOUR = "PeachPuff3"
 CHECKBUTTON_BACKGROUND_COLOUR = "PeachPuff3"
 LABEL_BACKGROUND_COLOUR = "PeachPuff3"
 BUTTON_BACKGROUND_COLOUR = "white"
-LABEL_FOREGROUND_COLOR = "black"
-INFO_BACKGROUND_COLOR = "lightgrey"
+LABEL_FOREGROUND_COLOUR = "black"
+INFO_BACKGROUND_COLOUR = "lightgrey"
 
 # fonts
 FONT_SETTINGS_0 = ('bold', 14)
@@ -34,17 +35,23 @@ FRAME_TITLE = "Gradebook"
 
 
 class AbsentLateException(Exception):
+    """Exception that raise, when teacher want to check late to absent student"""
+
     def __str__(self):
         return 'Absent student cant have late!'
 
 
 def my_exit():
+    """My exit with messagebox."""
     if messagebox.askyesno('Exit?', 'Are you sure?'):
         sys.exit()
 
 
 class MainWindow:
+    """Class that contain main window of application and login methods."""
+
     def __init__(self, master):
+        """MainWindow init method."""
         self.frame = master
         # create window object
         self.frame.title(FRAME_TITLE)
@@ -55,17 +62,21 @@ class MainWindow:
         self.STUDENT_PERM = 0
 
     def clear_frame(self):
+        """Method that clear frame."""
         for widget in self.frame.winfo_children():
             widget.destroy()
 
     def log_out(self):
+        """Method that logout user from panel."""
         if messagebox.askyesno('Logout?', 'Are you sure?'):
             self.clear_frame()
             MainWindow(self.frame).login_main()
-        else:
-            pass
 
     def log_in(self):
+        """Login management method,
+        perm = 0 -> student,
+        perm = 1 -> teacher,
+        perm = 2 -> admin."""
         try:
             self.log_data = db.check_password(self.login_text.get(), self.password_text.get())
             global CURR_ID
@@ -88,10 +99,11 @@ class MainWindow:
             pass
 
     def login_main(self):
+        """Method that creates login GUI elements."""
         # login and password buttons
         self.login_text = tk.StringVar()
         self.login_l = tk.Label(self.frame, text='Login', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_1)
         self.login_l.place(x=220, y=120)
         self.login_entry = tk.Entry(self.frame, textvariable=self.login_text)
@@ -99,7 +111,7 @@ class MainWindow:
 
         self.password_text = tk.StringVar()
         self.password_l = tk.Label(self.frame, text='Password', bg=LABEL_BACKGROUND_COLOUR,
-                                   fg=LABEL_FOREGROUND_COLOR,
+                                   fg=LABEL_FOREGROUND_COLOUR,
                                    font=FONT_SETTINGS_1)
         self.password_l.place(x=220, y=150)
         self.password_entry = tk.Entry(self.frame, show='*', textvariable=self.password_text)
@@ -115,10 +127,13 @@ class MainWindow:
 
 
 class Admin(MainWindow):
+    """Admin management class."""
+
     def admin_main(self):
+        """Method that creates admin main GUI elements."""
         # head label
-        self.head_l = tk.Label(self.frame, text='admin', bg=INFO_BACKGROUND_COLOR,
-                               fg=LABEL_FOREGROUND_COLOR,
+        self.head_l = tk.Label(self.frame, text='admin', bg=INFO_BACKGROUND_COLOUR,
+                               fg=LABEL_FOREGROUND_COLOUR,
                                font=FONT_SETTINGS_0)
         self.head_l.place(x=0, y=0)
         # login button
@@ -137,32 +152,38 @@ class Admin(MainWindow):
     # admin main functions
 
     def go_to_data_manage(self):
+        """Go to method, that clear frame and move user to data management frame."""
         self.clear_frame()
         Admin(self.frame).admin_db_manage()
 
     def go_to_add_class_subj(self):
+        """Go to method, that clear frame and move user to class management frame."""
         self.clear_frame()
         Admin(self.frame).admin_add_class_subject()
 
     def go_to_menu(self):
+        """Go to method, that clear frame and move user to admin menu frame."""
         self.clear_frame()
         Admin(self.frame).admin_main()
 
     # admin database manage panel
 
     def admin_db_manage(self):
-        self.labels_admin_db()
+        """Method that calls other methods, that are responsible for GUI elements in data
+        management frame."""
+        self.gui_admin_db()
         self.tree_admin_db()
         self.buttons_admin_db()
         self.show_list()
 
     # help functions for admin_db_manage
 
-    def labels_admin_db(self):
+    def gui_admin_db(self):
+        """Method that creates admin database management GUI elements: entries, labels."""
         # text and entry windows
         self.name_text = tk.StringVar()
         self.name_l = tk.Label(self.frame, text='First name:', bg=LABEL_BACKGROUND_COLOUR,
-                               fg=LABEL_FOREGROUND_COLOR,
+                               fg=LABEL_FOREGROUND_COLOUR,
                                font=FONT_SETTINGS_1)
         self.name_l.place(x=0, y=0)
 
@@ -171,7 +192,7 @@ class Admin(MainWindow):
 
         self.lname_text = tk.StringVar()
         self.lname_l = tk.Label(self.frame, text='Last name:', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_1)
         self.lname_l.place(x=250, y=0)
 
@@ -180,7 +201,7 @@ class Admin(MainWindow):
 
         self.email_text = tk.StringVar()
         self.email_l = tk.Label(self.frame, text='Email:', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_1)
         self.email_l.place(x=0, y=30)
 
@@ -189,7 +210,7 @@ class Admin(MainWindow):
 
         self.phone_text = tk.StringVar()
         self.phone_l = tk.Label(self.frame, text='Phone number:', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_1)
         self.phone_l.place(x=250, y=30)
 
@@ -198,7 +219,7 @@ class Admin(MainWindow):
 
         self.pesel_text = tk.StringVar()
         self.pesel_l = tk.Label(self.frame, text='Pesel:', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_1)
         self.pesel_l.place(x=0, y=60)
 
@@ -207,7 +228,7 @@ class Admin(MainWindow):
 
         self.birth_text = tk.StringVar()
         self.birth_l = tk.Label(self.frame, text='Date of birth:', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_1)
         self.birth_l.place(x=250, y=60)
 
@@ -215,9 +236,10 @@ class Admin(MainWindow):
         self.birth_entry.place(x=380, y=64)
 
     def buttons_admin_db(self):
+        """Method that creates admin database management GUI elements: buttons, entries, labels."""
         # checkbutton
         self.perm_chck_l = tk.Label(self.frame, text='Teacher:', bg=LABEL_BACKGROUND_COLOUR,
-                                    fg=LABEL_FOREGROUND_COLOR,
+                                    fg=LABEL_FOREGROUND_COLOUR,
                                     font=FONT_SETTINGS_1)
         self.perm_chck_l.place(x=0, y=90)
 
@@ -248,7 +270,7 @@ class Admin(MainWindow):
 
         self.search_label = tk.Label(self.frame, text='SEARCH USING PESEL',
                                      bg=LABEL_BACKGROUND_COLOUR,
-                                     fg=LABEL_FOREGROUND_COLOR,
+                                     fg=LABEL_FOREGROUND_COLOUR,
                                      font=FONT_SETTINGS_1)
         self.search_label.place(x=0, y=122)
 
@@ -274,6 +296,7 @@ class Admin(MainWindow):
         self.exit_button.place(x=714, y=2)
 
     def tree_admin_db(self):
+        """Method that creates Treeview on users personal information's"""
         self.columns = (
             'ID', 'Name', 'Last name', 'Password', 'Login', 'Email', 'Phone', 'Pesel',
             'Date of birth', 'Perm')
@@ -307,12 +330,13 @@ class Admin(MainWindow):
         self.tree.bind('<ButtonRelease-1>', self.selected_user)
 
     def add_user(self):
-        if self.name_text.get() == '' \
-                or self.lname_text.get() == '' \
-                or self.email_text.get() == '' \
-                or self.phone_text.get() == '' \
-                or self.pesel_text.get() == '' \
-                or self.birth_text.get() == '':
+        """Method, that adds user to database."""
+        if not self.name_text.get() \
+                or not self.lname_text.get() \
+                or not self.email_text.get() \
+                or not self.phone_text.get() \
+                or not self.pesel_text.get() \
+                or not self.birth_text.get():
             messagebox.showerror("Warning", "Fill all fields!")
         elif len(self.birth_text.get()) != 10:
             messagebox.showerror("Error!", "Wrong date!\nformat is:\nYYYY-MM-DD")
@@ -331,6 +355,7 @@ class Admin(MainWindow):
             self.show_list()
 
     def show_list(self):
+        """Method, that put data into users information's Treeview"""
         try:
             for i in self.tree.get_children():
                 self.tree.delete(i)
@@ -340,6 +365,7 @@ class Admin(MainWindow):
             pass
 
     def delete_user(self):
+        """Method, that delete selected user from database."""
         try:
             db.delete_user(self.select_user[self.columns[0]])  # columns[0] is id
             self.rmv_windows_data()
@@ -348,6 +374,7 @@ class Admin(MainWindow):
             pass
 
     def update_user(self):
+        """Method that updates user's data."""
         try:
             db.update_user(self.select_user[self.columns[0]], self.name_text.get(),
                            self.lname_text.get(),
@@ -361,6 +388,7 @@ class Admin(MainWindow):
             pass
 
     def selected_user(self, event):
+        """Treeview select method."""
         try:
             self.select_user = self.tree.set(self.tree.selection())
             self.rmv_windows_data()
@@ -371,6 +399,7 @@ class Admin(MainWindow):
             pass
 
     def rmv_windows_data(self):
+        """Method that remove all data's from entries."""
         # windows
         self.name_entry.delete(0, tk.END)
         self.lname_entry.delete(0, tk.END)
@@ -382,6 +411,7 @@ class Admin(MainWindow):
         self.perm_chck.deselect()
 
     def put_windows_data(self, user):
+        """Method that put data into entries, when we select record."""
         # ind = 0 is a id, we jump over that
         self.name_entry.insert(tk.END, user[self.columns[1]])
         self.lname_entry.insert(tk.END, user[self.columns[2]])
@@ -395,6 +425,7 @@ class Admin(MainWindow):
             self.perm_chck.select()
 
     def put_windows_pesel_search(self, user):
+        """Method that puts data into entries, when user is using "pesel search"."""
         # ind = 0 is a id, we jump over that
         self.name_entry.insert(tk.END, user[1])
         self.lname_entry.insert(tk.END, user[2])
@@ -408,6 +439,7 @@ class Admin(MainWindow):
             self.perm_chck.select()
 
     def search_using_pesel(self):
+        """Searching user using pesel."""
         data = db.select_by_pesel(self.search_text.get())
         if len(self.search_text.get()) == 11 and data is not None:
             self.rmv_windows_data()
@@ -417,6 +449,7 @@ class Admin(MainWindow):
             messagebox.showerror("Warning!", "Pesel is wrong!")
 
     def set_default_password(self):
+        """Method that reset password - default password is a pesel."""
         try:
             db.default_password(self.select_user[self.columns[0]],
                                 self.select_user[self.columns[7]])
@@ -426,10 +459,15 @@ class Admin(MainWindow):
 
     # Add class and subject panel
     def admin_add_class_subject(self):
+        """Method that create "add class and subject to users" window, contain:
+        - labels
+        - entries
+        - treeviews
+        - buttons."""
         # class and subject windows
         self.class_text = tk.StringVar('')
         self.class_l = tk.Label(self.frame, text='Class', bg=LABEL_BACKGROUND_COLOUR,
-                                fg=LABEL_FOREGROUND_COLOR,
+                                fg=LABEL_FOREGROUND_COLOUR,
                                 font=FONT_SETTINGS_2)
         self.class_l.place(x=0, y=30)
 
@@ -438,7 +476,7 @@ class Admin(MainWindow):
 
         self.subject_text = tk.StringVar('')
         self.subject_l = tk.Label(self.frame, text='Subject', bg=LABEL_BACKGROUND_COLOUR,
-                                  fg=LABEL_FOREGROUND_COLOR,
+                                  fg=LABEL_FOREGROUND_COLOUR,
                                   font=FONT_SETTINGS_2)
         self.subject_l.place(x=0, y=4)
 
@@ -512,7 +550,7 @@ class Admin(MainWindow):
         self.search_button.place(x=195, y=94)
 
         self.search_label = tk.Label(self.frame, text='Search by year', bg=LABEL_BACKGROUND_COLOUR,
-                                     fg=LABEL_FOREGROUND_COLOR,
+                                     fg=LABEL_FOREGROUND_COLOUR,
                                      font=FONT_SETTINGS_2)
         self.search_label.place(x=0, y=94)
 
@@ -550,28 +588,33 @@ class Admin(MainWindow):
     # help functions for admin_add_class_subject
 
     def multi_select_user_u(self, event):
+        """Treeview multi selection method - users."""
         if self.tree_u.selection() != ():
             temp_list_of_dict_users = [self.tree_u.set(i) for i in self.tree_u.selection()]
             self.selected_usr = copy.deepcopy(temp_list_of_dict_users)
 
     def multi_select_us(self, event):
+        """Treeview multi selection method - users - subjects."""
         if self.tree_us.selection() != ():
             temp_list_of_dict_subj = [self.tree_us.set(i) for i in self.tree_us.selection()]
             self.selected_sub = copy.deepcopy(temp_list_of_dict_subj)
 
     def show_list_u(self):
+        """Show users list."""
         for i in self.tree_u.get_children():
             self.tree_u.delete(i)
         for element in db.fetch_class_subj():
             self.tree_u.insert('', tk.END, values=element)
 
     def show_list_us(self):
+        """Show users - subject list"""
         for i in self.tree_us.get_children():
             self.tree_us.delete(i)
         for element in db.fetch_subjects():
             self.tree_us.insert('', tk.END, values=element)
 
     def rmv_class(self):
+        """Method that remove selected class."""
         try:
             for my_dict in self.selected_sub:
                 db.delete_class(my_dict[self.columns_us[0]])
@@ -581,6 +624,7 @@ class Admin(MainWindow):
             pass
 
     def add_class(self):
+        """Method that add selected class."""
         try:
             db.add_class(self.subject_text.get(), self.class_text.get())
             self.rmv_windows_class_subj()
@@ -589,6 +633,7 @@ class Admin(MainWindow):
             messagebox.showerror("Warning", "Wrong data!")
 
     def join_user_subject(self):
+        """Method that connect users with subjects and class."""
         try:
             for sub in self.selected_sub:
                 for usr in self.selected_usr:
@@ -604,6 +649,7 @@ class Admin(MainWindow):
             pass
 
     def disjoin_user_subject(self):
+        """Method that disconnect users with subjects and class."""
         try:
             for usr in self.selected_usr:
                 db.disjoin_user_subj(int(usr[self.columns_u[0]]), usr[self.columns_u[6]],
@@ -613,11 +659,13 @@ class Admin(MainWindow):
             pass
 
     def rmv_windows_class_subj(self):
+        """Method that remove class and subject from entries."""
         # windows
         self.class_entry.delete(0, tk.END)
         self.subject_entry.delete(0, tk.END)
 
     def is_int(self, x):
+        """Method that check the object is int type or not."""
         try:
             float(x)
         except ValueError:
@@ -626,6 +674,7 @@ class Admin(MainWindow):
             return float(x).is_integer()
 
     def search_using_year(self):
+        """Search users using year."""
         data = db.select_by_year(self.search_text.get())
         if data is not None and self.is_int(self.search_text.get()):
             self.search_entry.delete(0, tk.END)
@@ -638,9 +687,20 @@ class Admin(MainWindow):
 
 
 class Teacher(MainWindow):
+    """Teacher management class."""
 
     # teacher main
+    def __init__(self, master):
+        """Teacher init method."""
+        super().__init__(master)
+        self.DATE = 'Date'
+        self.curr_s_and_c = None
+        self.curr_s_id = None
+        self.COLUMNS_A = None
+        self.COLUMNS_A_SIZE = None
+
     def teacher_main(self):
+        """Create teacher's main frame: combobox, labels, buttons."""
         # combobox subject
         self.subject_text = tk.StringVar()
         self.subject_text.set('Choose subject')
@@ -651,8 +711,8 @@ class Teacher(MainWindow):
         self.subject_cb.place(x=250, y=132)
 
         # head label
-        self.head_l = tk.Label(self.frame, text='Teacher', bg=INFO_BACKGROUND_COLOR,
-                               fg=LABEL_FOREGROUND_COLOR,
+        self.head_l = tk.Label(self.frame, text='Teacher', bg=INFO_BACKGROUND_COLOUR,
+                               fg=LABEL_FOREGROUND_COLOUR,
                                font=FONT_SETTINGS_0)
         self.head_l.place(x=0, y=0)
 
@@ -670,11 +730,13 @@ class Teacher(MainWindow):
         self.logout_button.place(x=714, y=2)
 
     def go_to_main(self):
+        """Go to main method."""
         self.clear_frame()
         self.teacher_main()
 
     # get selected subject and class
     def get_chosen_subject_and_id(self, event):
+        """Method that assign variable current student id."""
         self.curr_s_and_c = self.subject_cb.get().split(" ")
         try:
             self.curr_s_id = \
@@ -685,6 +747,7 @@ class Teacher(MainWindow):
 
     # change password functions
     def change_password_panel(self):
+        """Create GUI to change password panel: buttons, labels."""
         # log out button
         self.go_main_butt = tk.Button(self.frame, text='Back', width=6, command=self.go_to_main,
                                       bg='snow')
@@ -696,15 +759,15 @@ class Teacher(MainWindow):
         self.change_butt.place(x=470, y=99)
 
         self.type_label = tk.Label(self.frame, text='Type new password', bg=LABEL_BACKGROUND_COLOUR,
-                                   fg=LABEL_FOREGROUND_COLOR, font=FONT_SETTINGS_1)
+                                   fg=LABEL_FOREGROUND_COLOUR, font=FONT_SETTINGS_1)
         self.type_label.place(x=160, y=128)
         self.login_label = tk.Label(self.frame, text='Your login', bg=LABEL_BACKGROUND_COLOUR,
-                                    fg=LABEL_FOREGROUND_COLOR,
+                                    fg=LABEL_FOREGROUND_COLOUR,
                                     font=FONT_SETTINGS_1)
         self.login_label.place(x=160, y=100)
 
         self.r_login_label = tk.Label(self.frame, text=db.get_login(CURR_ID), bg='snow',
-                                      fg=LABEL_FOREGROUND_COLOR,
+                                      fg=LABEL_FOREGROUND_COLOUR,
                                       font=FONT_SETTINGS_2,
                                       width=14)
         self.r_login_label.place(x=320, y=100)
@@ -714,7 +777,8 @@ class Teacher(MainWindow):
         self.pass_entry.place(x=320, y=130)
 
     def change_password(self):
-        if self.pass_text.get() != '' and len(self.pass_text.get()) >= 6:
+        """Change user password method."""
+        if self.pass_text.get() and len(self.pass_text.get()) >= 6:
             db.change_password(CURR_ID, self.pass_text.get())
             self.pass_text.set('')
             self.pass_entry.delete(0, tk.END)
@@ -724,15 +788,16 @@ class Teacher(MainWindow):
             messagebox.showerror("Warning!", "Password too short!\nminimum 6 characters")
 
     def go_to_change_password(self):
+        """Go to change password panel method."""
         self.clear_frame()
         self.change_password_panel()
 
     # teacher manage panel
     def manage_panel(self):
-
+        """Create GUI to main teacher panel: labels, buttons."""
         self.subject_class_info = self.curr_s_and_c[0] + ' ' + self.curr_s_and_c[1]
-        self.sub_l = tk.Label(self.frame, text=self.subject_class_info, bg=INFO_BACKGROUND_COLOR,
-                              fg=LABEL_FOREGROUND_COLOR,
+        self.sub_l = tk.Label(self.frame, text=self.subject_class_info, bg=INFO_BACKGROUND_COLOUR,
+                              fg=LABEL_FOREGROUND_COLOUR,
                               font=FONT_SETTINGS_0)
         self.sub_l.place(x=0, y=0)
 
@@ -756,10 +821,13 @@ class Teacher(MainWindow):
     # Attendance functions
 
     def go_to_manage_panel(self):
+        """Go to main teacher panel method."""
         self.clear_frame()
         self.manage_panel()
 
     def new_dates_and_go_to_manage(self):
+        """Method responsible for add new "date" (attendance, marks)
+        every time, when teacher select and log in subject."""
         if self.subject_cb.get() != 'Choose subject':
             self.go_to_manage_panel()
             for i in db.get_students_subject_id(self.curr_s_id):
@@ -768,6 +836,7 @@ class Teacher(MainWindow):
             messagebox.showerror("Warning!", "Select subject!")
 
     def check_attendance(self):
+        """Create GUI to attendance panel: labels, treeview, buttons, checkbox."""
         # attendance treeview
         self.COLUMNS_A = ('ID', 'Name', 'Last name', 'Attendance', 'Late')
         self.COLUMNS_A_SIZE = [(30, 30), (105, 105), (105, 105), (80, 80), (40, 40)]
@@ -804,7 +873,7 @@ class Teacher(MainWindow):
 
         # checkbutton
         self.late_chck_l = tk.Label(self.frame, text='Late?', bg=LABEL_BACKGROUND_COLOUR,
-                                    fg=LABEL_FOREGROUND_COLOR,
+                                    fg=LABEL_FOREGROUND_COLOUR,
                                     font=FONT_SETTINGS_1)
         self.late_chck_l.place(x=590, y=120)
 
@@ -819,9 +888,10 @@ class Teacher(MainWindow):
         self.attendance_show()
 
     def date_tree(self):
+        """Create treeview with dates (attendance panel)."""
         self.go_to_manage_panel()
         # attendance date
-        self.tree_date = ttk.Treeview(self.frame, columns='Date', show='headings', height=10)
+        self.tree_date = ttk.Treeview(self.frame, columns=self.DATE, show='headings', height=10)
         self.tree_date.place(x=10, y=65)
 
         self.tree_date.column('Date', minwidth='140', width='140', anchor=tk.CENTER)
@@ -843,17 +913,19 @@ class Teacher(MainWindow):
         self.load_data_tree()
 
     def load_data_tree(self):
+        """Method that put data into treeview with data's."""
         for item in self.tree_date.get_children():
             self.tree_date.delete(item)
         for element in db.fetch_date(self.curr_s_id):
             self.tree_date.insert('', tk.END, values=element)
 
     def selected_user_attendance(self, event):
+        """Method that get selected by teacher users (attendance panel)."""
         try:
-            if self.tree_a.selection() != ():
+            if self.tree_a.selection() is not None:
                 temp_list_of_dict_subj = [self.tree_a.set(item) for item in self.tree_a.selection()]
                 self.selected_att = copy.deepcopy(temp_list_of_dict_subj)
-                if self.selected_att[0]['Late'] == '0':
+                if int(self.selected_att[0][self.COLUMNS_A[4]]) == 0:
                     self.late_chck.deselect()
                 else:
                     self.late_chck.select()
@@ -861,6 +933,7 @@ class Teacher(MainWindow):
             pass
 
     def selected_date_attendance(self, event):
+        """Method that get selected by teacher date."""
         try:
             self.selected_date = self.tree_date.set(self.tree_date.selection())
             self.check_attendance()
@@ -868,31 +941,35 @@ class Teacher(MainWindow):
             pass
 
     def set_present(self):
+        """Method that set selected students present."""
         try:
             for select in self.selected_att:
                 db.set_present(select[self.COLUMNS_A[0]], self.curr_s_id,
-                               self.selected_date['Date'])
+                               self.selected_date[self.DATE])
             self.attendance_show()
         except AttributeError:
             pass
 
     def set_absent(self):
+        """Method that set selected students absent."""
         try:
             for select in self.selected_att:
-                db.set_absent(select[self.COLUMNS_A[0]], self.curr_s_id, self.selected_date['Date'])
+                db.set_absent(select[self.COLUMNS_A[0]], self.curr_s_id,
+                              self.selected_date[self.DATE])
             self.attendance_show()
         except AttributeError:
             pass
 
     def set_late(self):
+        """Method that set selected students late."""
         try:
             for select in self.selected_att:
                 att = db.fetch_att_student_date(select[self.COLUMNS_A[0]], self.curr_s_id,
-                                                self.selected_date['Date'])
+                                                self.selected_date[self.DATE])
                 att = int(att[0][0])
                 if att:
                     db.set_late(select[self.COLUMNS_A[0]], self.curr_s_id,
-                                self.selected_date['Date'],
+                                self.selected_date[self.DATE],
                                 self.late.get())
                 else:
                     self.late_chck.deselect()
@@ -906,14 +983,16 @@ class Teacher(MainWindow):
             self.attendance_show()
 
     def attendance_show(self):
+        """Method that put attendance informations into treeview."""
         for i in self.tree_a.get_children():
             self.tree_a.delete(i)
-        for element in db.fetch_attendance(self.curr_s_id, self.selected_date['Date']):
+        for element in db.fetch_attendance(self.curr_s_id, self.selected_date[self.DATE]):
             self.tree_a.insert('', tk.END, values=element)
 
     # Events
 
     def events_manage(self):
+        """Create events management panel: buttons, labels."""
         self.go_to_manage_panel()
 
         self.add_event_b = tk.Button(self.frame, text='Add event', width=11, command=self.add_event,
@@ -932,6 +1011,7 @@ class Teacher(MainWindow):
         self.show_events()
 
     def tree_event(self):
+        """Create treeview for events."""
         # events
         self.tree_event_col = ['ID', 'Events']
         self.tree_event_tv = ttk.Treeview(self.frame, columns=self.tree_event_col, show='headings',
@@ -957,8 +1037,9 @@ class Teacher(MainWindow):
         self.tree_event_tv.bind('<ButtonRelease-1>', self.select_events)
 
     def select_events(self, event):
+        """Method that get selected events."""
         try:
-            if self.tree_event_tv.selection() != ():
+            if self.tree_event_tv.selection() is not None:
                 temp_list_of_dict_subj = [self.tree_event_tv.set(i) for i in
                                           self.tree_event_tv.selection()]
                 self.selected_events = copy.deepcopy(temp_list_of_dict_subj)
@@ -966,14 +1047,16 @@ class Teacher(MainWindow):
             pass
 
     def show_events(self):
+        """Method that put events into treeview."""
         for i in self.tree_event_tv.get_children():
             self.tree_event_tv.delete(i)
         for element in db.fetch_events(self.curr_s_id):
             self.tree_event_tv.insert('', tk.END, values=element)
 
     def add_event(self):
+        """Method that add new event."""
         try:
-            if self.event_entry.get() != '':
+            if self.event_entry.get():
                 db.add_event(self.event_entry.get(), self.curr_s_id)
                 self.event_entry.delete(0, tk.END)
                 self.show_events()
@@ -981,6 +1064,7 @@ class Teacher(MainWindow):
             pass
 
     def del_event(self):
+        """Method that delete selected events."""
         try:
             for i in self.selected_events:
                 db.del_event(i[self.tree_event_col[0]])
@@ -991,12 +1075,13 @@ class Teacher(MainWindow):
     # Marks
 
     def marks_manage(self):
+        """Create marks management frame: labels, buttons."""
         self.go_to_manage_panel()
         self.marks_tree()
         self.show_marks()
 
-        self.mark_l = tk.Label(self.frame, text="Mark:", bg=INFO_BACKGROUND_COLOR,
-                               fg=LABEL_FOREGROUND_COLOR,
+        self.mark_l = tk.Label(self.frame, text="Mark:", bg=INFO_BACKGROUND_COLOUR,
+                               fg=LABEL_FOREGROUND_COLOUR,
                                font=FONT_SETTINGS_2)
         self.mark_l.place(x=680, y=70)
 
@@ -1013,18 +1098,19 @@ class Teacher(MainWindow):
         self.mark_entry.place(x=720, y=72)
 
     def marks_tree(self):
+        """Create treeview for marks."""
         self.go_to_manage_panel()
         # attendance treeview
-        self.columns_m = ('ID', 'Name', 'Last name')
-        self.columns_m_size = [(30, 30), (105, 105), (105, 105)]
+        self.COLUMNS_M = ('ID', 'Name', 'Last name')
+        self.COLUMNS_M_SIZE = [(30, 30), (105, 105), (105, 105)]
         self.how_much_grades = 11
         self.columns_marks = tuple(str(i) for i in range(self.how_much_grades))
 
-        self.tree_m = ttk.Treeview(self.frame, columns=self.columns_m + self.columns_marks,
+        self.tree_m = ttk.Treeview(self.frame, columns=self.COLUMNS_M + self.columns_marks,
                                    show='headings', height=10)
         self.tree_m.place(x=2, y=65)
 
-        for cols, width in zip(self.columns_m, self.columns_m_size):
+        for cols, width in zip(self.COLUMNS_M, self.COLUMNS_M_SIZE):
             self.tree_m.column(cols, minwidth=width[0], width=width[1], anchor=tk.CENTER)
             self.tree_m.heading(cols, text=cols)
 
@@ -1046,6 +1132,7 @@ class Teacher(MainWindow):
         self.tree_m.bind('<ButtonRelease-1>', self.select_marks)
 
     def show_marks(self):
+        """Method that put marks into treeview."""
         for i in self.tree_m.get_children():
             self.tree_m.delete(i)
         for s in db.fetch_students(self.curr_s_id):
@@ -1053,20 +1140,22 @@ class Teacher(MainWindow):
             self.tree_m.insert('', tk.END, values=s + marks)
 
     def select_marks(self, event):
+        """Method that get selected by teacher users, that will get mark."""
         try:
-            if self.tree_m.selection() != ():
+            if self.tree_m.selection() is not None:
                 temp_list_of_dict_subj = [self.tree_m.set(i) for i in self.tree_m.selection()]
                 self.selected_marks = copy.deepcopy(temp_list_of_dict_subj)
         except KeyError:
             pass
 
     def add_mark(self):
+        """Method that add marks to selected users."""
         try:
-            if self.mark_entry.get() != '':
+            if self.mark_entry.get():
                 if 0.0 <= float(self.mark_entry.get()) <= 6.0:
-                    for i in self.selected_marks:
+                    for student_id in self.selected_marks:
                         db.add_mark(float(self.mark_entry.get()), self.curr_s_id,
-                                    i[self.columns_m[0]])
+                                    student_id[self.COLUMNS_M[0]])
                     self.mark_entry.delete(0, tk.END)
                     self.show_marks()
                 else:
@@ -1077,9 +1166,10 @@ class Teacher(MainWindow):
             pass
 
     def del_mark(self):
+        """Method that remove marks."""
         try:
             for i in self.selected_marks:
-                db.del_mark(self.curr_s_id, i[self.columns_m[0]])
+                db.del_mark(self.curr_s_id, i[self.COLUMNS_M[0]])
             self.show_marks()
         except AttributeError:
             pass
@@ -1088,16 +1178,24 @@ class Teacher(MainWindow):
 
 
 class Student(MainWindow):
+    """Student management class."""
     def __init__(self, master):
+        """Student class init method."""
         super().__init__(master)
+        self.TREE_ATT_COL = ['Subject', 'Avg Attendance']
+        self.TREE_AVG_COL = ['Subject', 'Avg']
+        self.COLUMNS_SUBJECTS_SIZE = [(105, 105), ]
+        self.COLUMNS_SUBJECTS = ('Subject',)
+        self.TREE_EVENT_COL = ['Subject', 'Class', 'Events']
         self.tree_att_s_col = ['Subject', 'Attendance']
 
     def student_main(self):
+        """Create student main GUI: labels, buttons."""
         # head label
         self.show_student()
 
-        self.head_l = tk.Label(self.frame, text='Student', bg=INFO_BACKGROUND_COLOR,
-                               fg=LABEL_FOREGROUND_COLOR,
+        self.head_l = tk.Label(self.frame, text='Student', bg=INFO_BACKGROUND_COLOUR,
+                               fg=LABEL_FOREGROUND_COLOUR,
                                font=FONT_SETTINGS_0)
         self.head_l.place(x=0, y=0)
 
@@ -1124,19 +1222,20 @@ class Student(MainWindow):
         self.logout_button.place(x=714, y=2)
 
     def go_to_student_main(self):
+        """Go to student main method."""
         self.clear_frame()
         self.student_main()
 
     # events
 
     def tree_event(self):
+        """Create treeview for events."""
         # events
-        self.tree_event_col = ['Subject', 'Class', 'Events']
-        self.tree_event_tv = ttk.Treeview(self.frame, columns=self.tree_event_col, show='headings',
+        self.tree_event_tv = ttk.Treeview(self.frame, columns=self.TREE_EVENT_COL, show='headings',
                                           height=10)
         self.tree_event_tv.place(x=2, y=70)
         self.tree_event_col_size = ((90, 90, tk.CENTER), (40, 40, tk.CENTER), (520, 520, tk.W))
-        for size, col in zip(self.tree_event_col_size, self.tree_event_col):
+        for size, col in zip(self.tree_event_col_size, self.TREE_EVENT_COL):
             self.tree_event_tv.column(col, minwidth=size[0], width=size[1], anchor=size[2])
             self.tree_event_tv.heading(col, text=col)
 
@@ -1154,6 +1253,7 @@ class Student(MainWindow):
         self.tree_event_tv.configure(yscrollcommand=self.scroll_event_y.set)
 
     def show_events(self):
+        """Put data into events treeview."""
         for i in self.tree_event_tv.get_children():
             self.tree_event_tv.delete(i)
 
@@ -1162,6 +1262,7 @@ class Student(MainWindow):
                 self.tree_event_tv.insert('', tk.END, values=element)
 
     def events_panel(self):
+        """Create main events frame."""
         self.clear_frame()
         self.student_main()
         self.tree_event()
@@ -1170,6 +1271,7 @@ class Student(MainWindow):
     # change password
 
     def change_password_panel(self):
+        """Create change password panel: buttons, labels, entry."""
         # log out button
         self.go_main_butt = tk.Button(self.frame, text='Back', width=6,
                                       command=self.go_to_student_main, bg='snow')
@@ -1181,15 +1283,15 @@ class Student(MainWindow):
         self.change_butt.place(x=470, y=99)
 
         self.type_label = tk.Label(self.frame, text='Type new password', bg=LABEL_BACKGROUND_COLOUR,
-                                   fg=LABEL_FOREGROUND_COLOR, font=FONT_SETTINGS_1)
+                                   fg=LABEL_FOREGROUND_COLOUR, font=FONT_SETTINGS_1)
         self.type_label.place(x=160, y=128)
         self.login_label = tk.Label(self.frame, text='Your login', bg=LABEL_BACKGROUND_COLOUR,
-                                    fg=LABEL_FOREGROUND_COLOR,
+                                    fg=LABEL_FOREGROUND_COLOUR,
                                     font=FONT_SETTINGS_1)
         self.login_label.place(x=160, y=100)
 
         self.r_login_label = tk.Label(self.frame, text=db.get_login(CURR_ID), bg='snow',
-                                      fg=LABEL_FOREGROUND_COLOR,
+                                      fg=LABEL_FOREGROUND_COLOUR,
                                       font=FONT_SETTINGS_2,
                                       width=14)
         self.r_login_label.place(x=320, y=100)
@@ -1199,7 +1301,8 @@ class Student(MainWindow):
         self.pass_entry.place(x=320, y=130)
 
     def change_password(self):
-        if self.pass_text.get() != '' and len(self.pass_text.get()) >= 6:
+        """Change password method."""
+        if self.pass_text.get() and len(self.pass_text.get()) >= 6:
             db.change_password(CURR_ID, self.pass_text.get())
             self.pass_text.set('')
             self.pass_entry.delete(0, tk.END)
@@ -1209,12 +1312,14 @@ class Student(MainWindow):
             self.pass_entry.delete(0, tk.END)
 
     def go_to_change_password(self):
+        """Go to change password method"""
         self.clear_frame()
         self.change_password_panel()
 
     # marks
 
     def marks_panel(self):
+        """Create marks management panel."""
         self.clear_frame()
         self.student_main()
         self.tree_marks()
@@ -1223,25 +1328,25 @@ class Student(MainWindow):
         self.show_avg_marks()
 
     def show_student(self):
+        """Show informations about logged student."""
         self.student_data = db.get_fname_lname_class(CURR_ID)
         self.text = 'Logged as: ' + self.student_data[0] + ' ' + self.student_data[1] + ' class: ' \
                     + self.student_data[2]
-        self.head_marks_l = tk.Label(self.frame, text=self.text, bg=INFO_BACKGROUND_COLOR,
-                                     fg=LABEL_FOREGROUND_COLOR,
+        self.head_marks_l = tk.Label(self.frame, text=self.text, bg=INFO_BACKGROUND_COLOUR,
+                                     fg=LABEL_FOREGROUND_COLOUR,
                                      font=FONT_SETTINGS_0)
         self.head_marks_l.place(x=2, y=36)
 
     def tree_marks(self):
-        self.columns_m = ('Subject',)
-        self.columns_m_size = [(105, 105), ]
+        """Create treeview for subjects."""
         self.how_much_grades = 11
         self.columns_marks = tuple(str(i) for i in range(self.how_much_grades))
 
-        self.tree_m = ttk.Treeview(self.frame, columns=self.columns_m + self.columns_marks,
+        self.tree_m = ttk.Treeview(self.frame, columns=self.COLUMNS_SUBJECTS + self.columns_marks,
                                    show='headings', height=10)
         self.tree_m.place(x=2, y=70)
 
-        for cols, width in zip(self.columns_m, self.columns_m_size):
+        for cols, width in zip(self.COLUMNS_SUBJECTS, self.COLUMNS_SUBJECTS_SIZE):
             self.tree_m.column(cols, minwidth=width[0], width=width[0], anchor=tk.CENTER)
             self.tree_m.heading(cols, text=cols)
 
@@ -1261,12 +1366,12 @@ class Student(MainWindow):
         self.tree_m.configure(yscrollcommand=self.scroll_m_y.set)
 
     def avg_marks_tree(self):
-        self.tree_avg_col = ['Subject', 'Avg']
-        self.tree_avg = ttk.Treeview(self.frame, columns=self.tree_avg_col, show='headings',
+        """Create treeview for average marks of subjects."""
+        self.tree_avg = ttk.Treeview(self.frame, columns=self.TREE_AVG_COL, show='headings',
                                      height=10)
         self.tree_avg.place(x=500, y=70)
         self.tree_avg_col_size = ((95, 95, tk.CENTER), (50, 50, tk.CENTER))
-        for size, col in zip(self.tree_avg_col_size, self.tree_avg_col):
+        for size, col in zip(self.tree_avg_col_size, self.TREE_AVG_COL):
             self.tree_avg.column(col, minwidth=size[0], width=size[1], anchor=size[2])
             self.tree_avg.heading(col, text=col)
 
@@ -1283,6 +1388,7 @@ class Student(MainWindow):
         self.tree_avg.configure(yscrollcommand=self.scroll_avg_y.set)
 
     def show_avg_marks(self):
+        """Put data into average marks treeview."""
         for i in self.tree_avg.get_children():
             self.tree_avg.delete(i)
         for subj_id in db.get_subjects_id(CURR_ID):
@@ -1291,6 +1397,7 @@ class Student(MainWindow):
             self.tree_avg.insert('', tk.END, values=name + grades)
 
     def show_marks(self):
+        """Put ddata into marks treeview."""
         for i in self.tree_m.get_children():
             self.tree_m.delete(i)
         for subj_id in db.get_subjects_id(CURR_ID):
@@ -1301,6 +1408,7 @@ class Student(MainWindow):
     # attendance
 
     def attendance_panel(self):
+        """Create main attendance panel."""
         self.clear_frame()
         self.student_main()
         self.att_tree()
@@ -1309,18 +1417,18 @@ class Student(MainWindow):
         self.combo_att_s()
 
     def att_tree(self):
+        """Create treeview for average attendance panel."""
         self.tree_att_h = tk.Label(self.frame, text='     Average attendance     ',
                                    bg=LABEL_BACKGROUND_COLOUR,
-                                   fg=LABEL_FOREGROUND_COLOR,
+                                   fg=LABEL_FOREGROUND_COLOUR,
                                    font=FONT_SETTINGS_1)
         self.tree_att_h.place(x=450, y=65)
 
-        self.tree_att_col = ['Subject', 'Avg Attendance']
-        self.tree_att = ttk.Treeview(self.frame, columns=self.tree_att_col, show='headings',
+        self.tree_att = ttk.Treeview(self.frame, columns=self.TREE_ATT_COL, show='headings',
                                      height=10)
         self.tree_att.place(x=450, y=90)
         self.tree_att_col_size = ((95, 95, tk.CENTER), (103, 103, tk.CENTER))
-        for size, col in zip(self.tree_att_col_size, self.tree_att_col):
+        for size, col in zip(self.tree_att_col_size, self.TREE_ATT_COL):
             self.tree_att.column(col, minwidth=size[0], width=size[1], anchor=size[2])
             self.tree_att.heading(col, text=col)
 
@@ -1337,8 +1445,9 @@ class Student(MainWindow):
         self.tree_att.configure(yscrollcommand=self.scroll_att_y.set)
 
     def show_att_marks(self):
-        for i in self.tree_att.get_children():
-            self.tree_att.delete(i)
+        """Put data into average attendance treeview"""
+        for item in self.tree_att.get_children():
+            self.tree_att.delete(item)
         for subj_id in db.get_subjects_id(CURR_ID):
             att = db.fetch_att_student(CURR_ID, subj_id[0])
             name = db.fetch_subj_name_student(subj_id[0])
@@ -1348,6 +1457,7 @@ class Student(MainWindow):
                 pass
 
     def att_s_tree(self):
+        """Create treeview for attendance panel."""
         self.tree_att_s = ttk.Treeview(self.frame, columns=self.tree_att_s_col, show='headings',
                                        height=10)
         self.tree_att_s.place(x=150, y=90)
@@ -1369,6 +1479,7 @@ class Student(MainWindow):
         self.tree_att_s.configure(yscrollcommand=self.scroll_att_s_y.set)
 
     def combo_att_s(self):
+        """Create combobox with dates to choose (attendance panel)."""
         # combobox subject
         self.att_text = tk.StringVar()
         self.att_text.set('Choose date')
@@ -1379,6 +1490,7 @@ class Student(MainWindow):
         self.att_cb.place(x=150, y=68)
 
     def show_att_date(self, event):
+        """Put data into attendance treeview."""
         for i in self.tree_att_s.get_children():
             self.tree_att_s.delete(i)
         for subj_id in db.get_subjects_id(CURR_ID):
