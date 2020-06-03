@@ -1,14 +1,11 @@
 import copy
 import sys
 import tkinter as tk
-import tkinter.ttk as ttk
-from _tkinter import TclError
 from sqlite3 import IntegrityError
 from tkinter import messagebox
+from tkinter import ttk
 
 import db_admin
-
-db = db_admin.DatabaseManagementClass('gradebook.db')
 
 # == Constants ==
 CURR_ID: str
@@ -60,6 +57,7 @@ class MainWindow:
         self.ADMIN_PERM = 2
         self.TEACHER_PERM = 1
         self.STUDENT_PERM = 0
+        self.db = db_admin.DatabaseManagementClass('gradebook.db')
 
     def clear_frame(self):
         """Method that clear frame."""
@@ -78,7 +76,7 @@ class MainWindow:
         perm = 1 -> teacher,
         perm = 2 -> admin."""
         try:
-            self.log_data = db.check_password(self.login_text.get(), self.password_text.get())
+            self.log_data = self.db.check_password(self.login_text.get(), self.password_text.get())
             global CURR_ID
             if self.log_data is not None:
                 CURR_ID = self.log_data[1]
@@ -344,9 +342,9 @@ class Admin(MainWindow):
             messagebox.showerror("Error!", "Wrong pesel!")
         else:
             try:
-                db.add_user(self.name_text.get(), self.lname_text.get(), self.email_text.get(),
-                            self.phone_text.get(),
-                            self.pesel_text.get(), self.birth_text.get(), self.perm.get())
+                self.db.add_user(self.name_text.get(), self.lname_text.get(), self.email_text.get(),
+                                 self.phone_text.get(),
+                                 self.pesel_text.get(), self.birth_text.get(), self.perm.get())
             except IntegrityError:
                 messagebox.showerror("Error!",
                                      "Someone already has the same:\n pesel or\nphone number or\n "
@@ -359,7 +357,7 @@ class Admin(MainWindow):
         try:
             for i in self.tree.get_children():
                 self.tree.delete(i)
-            for element in db.fetch():
+            for element in self.db.fetch():
                 self.tree.insert('', tk.END, values=element)
         except KeyError:
             pass
@@ -367,7 +365,7 @@ class Admin(MainWindow):
     def delete_user(self):
         """Method, that delete selected user from database."""
         try:
-            db.delete_user(self.select_user[self.columns[0]])  # columns[0] is id
+            self.db.delete_user(self.select_user[self.columns[0]])  # columns[0] is id
             self.rmv_windows_data()
             self.show_list()
         except AttributeError:
@@ -376,11 +374,11 @@ class Admin(MainWindow):
     def update_user(self):
         """Method that updates user's data."""
         try:
-            db.update_user(self.select_user[self.columns[0]], self.name_text.get(),
-                           self.lname_text.get(),
-                           self.email_text.get(), self.phone_text.get(), self.pesel_text.get(),
-                           self.birth_text.get(),
-                           self.perm.get())
+            self.db.update_user(self.select_user[self.columns[0]], self.name_text.get(),
+                                self.lname_text.get(),
+                                self.email_text.get(), self.phone_text.get(), self.pesel_text.get(),
+                                self.birth_text.get(),
+                                self.perm.get())
             self.show_list()
         except IntegrityError:
             messagebox.showerror("Warning!", "Wrong data!")
@@ -395,7 +393,7 @@ class Admin(MainWindow):
             self.put_windows_data(self.select_user)
         except KeyError:
             pass
-        except TclError:
+        except tk.TclError:
             pass
 
     def rmv_windows_data(self):
@@ -440,7 +438,7 @@ class Admin(MainWindow):
 
     def search_using_pesel(self):
         """Searching user using pesel."""
-        data = db.select_by_pesel(self.search_text.get())
+        data = self.db.select_by_pesel(self.search_text.get())
         if len(self.search_text.get()) == 11 and data is not None:
             self.rmv_windows_data()
             self.put_windows_pesel_search(data)
@@ -451,8 +449,8 @@ class Admin(MainWindow):
     def set_default_password(self):
         """Method that reset password - default password is a pesel."""
         try:
-            db.default_password(self.select_user[self.columns[0]],
-                                self.select_user[self.columns[7]])
+            self.db.default_password(self.select_user[self.columns[0]],
+                                     self.select_user[self.columns[7]])
             self.show_list()
         except AttributeError:
             pass
@@ -603,21 +601,21 @@ class Admin(MainWindow):
         """Show users list."""
         for i in self.tree_u.get_children():
             self.tree_u.delete(i)
-        for element in db.fetch_class_subj():
+        for element in self.db.fetch_class_subj():
             self.tree_u.insert('', tk.END, values=element)
 
     def show_list_us(self):
         """Show users - subject list"""
         for i in self.tree_us.get_children():
             self.tree_us.delete(i)
-        for element in db.fetch_subjects():
+        for element in self.db.fetch_subjects():
             self.tree_us.insert('', tk.END, values=element)
 
     def rmv_class(self):
         """Method that remove selected class."""
         try:
             for my_dict in self.selected_sub:
-                db.delete_class(my_dict[self.columns_us[0]])
+                self.db.delete_class(my_dict[self.columns_us[0]])
             self.show_list_us()
             self.show_list_u()
         except AttributeError:
@@ -626,7 +624,7 @@ class Admin(MainWindow):
     def add_class(self):
         """Method that add selected class."""
         try:
-            db.add_class(self.subject_text.get(), self.class_text.get())
+            self.db.add_class(self.subject_text.get(), self.class_text.get())
             self.rmv_windows_class_subj()
             self.show_list_us()
         except ValueError:
@@ -638,11 +636,14 @@ class Admin(MainWindow):
             for sub in self.selected_sub:
                 for usr in self.selected_usr:
                     try:
-                        db.join_usr_subj(int(usr[self.columns_u[0]]), int(sub[self.columns_u[0]]))
+                        self.db.join_usr_subj(int(usr[self.columns_u[0]]),
+                                              int(sub[self.columns_u[0]]))
                     except AttributeError:
-                        my_err = "User with ID: " + usr[self.columns_u[0]] + \
-                                 " is already connected with subject with ID: " \
-                                 + sub[self.columns_u[0]] + " !"
+                        my_err = "".join(["User with ID: ",
+                                          usr[self.columns_u[0]],
+                                          " is already connected with subject with ID: ",
+                                          sub[self.columns_u[0]],
+                                          " !"])
                         messagebox.showerror("Warning", my_err)
             self.show_list_u()
         except AttributeError:
@@ -652,8 +653,8 @@ class Admin(MainWindow):
         """Method that disconnect users with subjects and class."""
         try:
             for usr in self.selected_usr:
-                db.disjoin_user_subj(int(usr[self.columns_u[0]]), usr[self.columns_u[6]],
-                                     usr[self.columns_u[7]])
+                self.db.disjoin_user_subj(int(usr[self.columns_u[0]]), usr[self.columns_u[6]],
+                                          usr[self.columns_u[7]])
             self.show_list_u()
         except AttributeError:
             pass
@@ -675,7 +676,7 @@ class Admin(MainWindow):
 
     def search_using_year(self):
         """Search users using year."""
-        data = db.select_by_year(self.search_text.get())
+        data = self.db.select_by_year(self.search_text.get())
         if data is not None and self.is_int(self.search_text.get()):
             self.search_entry.delete(0, tk.END)
             for i in self.tree_u.get_children():
@@ -706,7 +707,7 @@ class Teacher(MainWindow):
         self.subject_text.set('Choose subject')
         self.subject_cb = ttk.Combobox(self.frame, textvariable=self.subject_text, justify='center',
                                        state='readonly')
-        self.subject_cb['values'] = db.get_teacher_subjects(CURR_ID)
+        self.subject_cb['values'] = self.db.get_teacher_subjects(CURR_ID)
         self.subject_cb.bind('<<ComboboxSelected>>', self.get_chosen_subject_and_id)
         self.subject_cb.place(x=250, y=132)
 
@@ -740,7 +741,7 @@ class Teacher(MainWindow):
         self.curr_s_and_c = self.subject_cb.get().split(" ")
         try:
             self.curr_s_id = \
-                (db.get_curr_subj_id(self.curr_s_and_c[1], self.curr_s_and_c[0], CURR_ID))[0]
+                (self.db.get_curr_subj_id(self.curr_s_and_c[1], self.curr_s_and_c[0], CURR_ID))[0]
         except TypeError:
             messagebox.showerror("Error!", "System require 1 word class name!\nChange it!")
         # thats 1 el. tuple
@@ -766,7 +767,7 @@ class Teacher(MainWindow):
                                     font=FONT_SETTINGS_1)
         self.login_label.place(x=160, y=100)
 
-        self.r_login_label = tk.Label(self.frame, text=db.get_login(CURR_ID), bg='snow',
+        self.r_login_label = tk.Label(self.frame, text=self.db.get_login(CURR_ID), bg='snow',
                                       fg=LABEL_FOREGROUND_COLOUR,
                                       font=FONT_SETTINGS_2,
                                       width=14)
@@ -779,7 +780,7 @@ class Teacher(MainWindow):
     def change_password(self):
         """Change user password method."""
         if self.pass_text.get() and len(self.pass_text.get()) >= 6:
-            db.change_password(CURR_ID, self.pass_text.get())
+            self.db.change_password(CURR_ID, self.pass_text.get())
             self.pass_text.set('')
             self.pass_entry.delete(0, tk.END)
             messagebox.showinfo("Succes!", "Password has been changed!")
@@ -795,7 +796,7 @@ class Teacher(MainWindow):
     # teacher manage panel
     def manage_panel(self):
         """Create GUI to main teacher panel: labels, buttons."""
-        self.subject_class_info = self.curr_s_and_c[0] + ' ' + self.curr_s_and_c[1]
+        self.subject_class_info = "".join([self.curr_s_and_c[0], " ", self.curr_s_and_c[1]])
         self.sub_l = tk.Label(self.frame, text=self.subject_class_info, bg=INFO_BACKGROUND_COLOUR,
                               fg=LABEL_FOREGROUND_COLOUR,
                               font=FONT_SETTINGS_0)
@@ -830,8 +831,8 @@ class Teacher(MainWindow):
         every time, when teacher select and log in subject."""
         if self.subject_cb.get() != 'Choose subject':
             self.go_to_manage_panel()
-            for i in db.get_students_subject_id(self.curr_s_id):
-                db.new_datas(i[0], self.curr_s_id)
+            for i in self.db.get_students_subject_id(self.curr_s_id):
+                self.db.new_datas(i[0], self.curr_s_id)
         else:
             messagebox.showerror("Warning!", "Select subject!")
 
@@ -916,7 +917,7 @@ class Teacher(MainWindow):
         """Method that put data into treeview with data's."""
         for item in self.tree_date.get_children():
             self.tree_date.delete(item)
-        for element in db.fetch_date(self.curr_s_id):
+        for element in self.db.fetch_date(self.curr_s_id):
             self.tree_date.insert('', tk.END, values=element)
 
     def selected_user_attendance(self, event):
@@ -931,6 +932,8 @@ class Teacher(MainWindow):
                     self.late_chck.select()
         except KeyError:
             pass
+        except IndexError:
+            pass
 
     def selected_date_attendance(self, event):
         """Method that get selected by teacher date."""
@@ -944,8 +947,8 @@ class Teacher(MainWindow):
         """Method that set selected students present."""
         try:
             for select in self.selected_att:
-                db.set_present(select[self.COLUMNS_A[0]], self.curr_s_id,
-                               self.selected_date[self.DATE])
+                self.db.set_present(select[self.COLUMNS_A[0]], self.curr_s_id,
+                                    self.selected_date[self.DATE])
             self.attendance_show()
         except AttributeError:
             pass
@@ -954,8 +957,8 @@ class Teacher(MainWindow):
         """Method that set selected students absent."""
         try:
             for select in self.selected_att:
-                db.set_absent(select[self.COLUMNS_A[0]], self.curr_s_id,
-                              self.selected_date[self.DATE])
+                self.db.set_absent(select[self.COLUMNS_A[0]], self.curr_s_id,
+                                   self.selected_date[self.DATE])
             self.attendance_show()
         except AttributeError:
             pass
@@ -964,13 +967,13 @@ class Teacher(MainWindow):
         """Method that set selected students late."""
         try:
             for select in self.selected_att:
-                att = db.fetch_att_student_date(select[self.COLUMNS_A[0]], self.curr_s_id,
-                                                self.selected_date[self.DATE])
+                att = self.db.fetch_att_student_date(select[self.COLUMNS_A[0]], self.curr_s_id,
+                                                     self.selected_date[self.DATE])
                 att = int(att[0][0])
                 if att:
-                    db.set_late(select[self.COLUMNS_A[0]], self.curr_s_id,
-                                self.selected_date[self.DATE],
-                                self.late.get())
+                    self.db.set_late(select[self.COLUMNS_A[0]], self.curr_s_id,
+                                     self.selected_date[self.DATE],
+                                     self.late.get())
                 else:
                     self.late_chck.deselect()
                     raise AbsentLateException
@@ -986,7 +989,7 @@ class Teacher(MainWindow):
         """Method that put attendance informations into treeview."""
         for i in self.tree_a.get_children():
             self.tree_a.delete(i)
-        for element in db.fetch_attendance(self.curr_s_id, self.selected_date[self.DATE]):
+        for element in self.db.fetch_attendance(self.curr_s_id, self.selected_date[self.DATE]):
             self.tree_a.insert('', tk.END, values=element)
 
     # Events
@@ -1050,14 +1053,14 @@ class Teacher(MainWindow):
         """Method that put events into treeview."""
         for i in self.tree_event_tv.get_children():
             self.tree_event_tv.delete(i)
-        for element in db.fetch_events(self.curr_s_id):
+        for element in self.db.fetch_events(self.curr_s_id):
             self.tree_event_tv.insert('', tk.END, values=element)
 
     def add_event(self):
         """Method that add new event."""
         try:
             if self.event_entry.get():
-                db.add_event(self.event_entry.get(), self.curr_s_id)
+                self.db.add_event(self.event_entry.get(), self.curr_s_id)
                 self.event_entry.delete(0, tk.END)
                 self.show_events()
         except AttributeError:
@@ -1067,7 +1070,7 @@ class Teacher(MainWindow):
         """Method that delete selected events."""
         try:
             for i in self.selected_events:
-                db.del_event(i[self.tree_event_col[0]])
+                self.db.del_event(i[self.tree_event_col[0]])
             self.show_events()
         except AttributeError:
             pass
@@ -1135,8 +1138,8 @@ class Teacher(MainWindow):
         """Method that put marks into treeview."""
         for i in self.tree_m.get_children():
             self.tree_m.delete(i)
-        for s in db.fetch_students(self.curr_s_id):
-            marks = db.fetch_marks(self.curr_s_id, s[0])
+        for s in self.db.fetch_students(self.curr_s_id):
+            marks = self.db.fetch_marks(self.curr_s_id, s[0])
             self.tree_m.insert('', tk.END, values=s + marks)
 
     def select_marks(self, event):
@@ -1154,8 +1157,8 @@ class Teacher(MainWindow):
             if self.mark_entry.get():
                 if 0.0 <= float(self.mark_entry.get()) <= 6.0:
                     for student_id in self.selected_marks:
-                        db.add_mark(float(self.mark_entry.get()), self.curr_s_id,
-                                    student_id[self.COLUMNS_M[0]])
+                        self.db.add_mark(float(self.mark_entry.get()), self.curr_s_id,
+                                         student_id[self.COLUMNS_M[0]])
                     self.mark_entry.delete(0, tk.END)
                     self.show_marks()
                 else:
@@ -1169,7 +1172,7 @@ class Teacher(MainWindow):
         """Method that remove marks."""
         try:
             for i in self.selected_marks:
-                db.del_mark(self.curr_s_id, i[self.COLUMNS_M[0]])
+                self.db.del_mark(self.curr_s_id, i[self.COLUMNS_M[0]])
             self.show_marks()
         except AttributeError:
             pass
@@ -1257,8 +1260,8 @@ class Student(MainWindow):
         for i in self.tree_event_tv.get_children():
             self.tree_event_tv.delete(i)
 
-        for subj_id in db.get_subjects_id(CURR_ID):
-            for element in db.fetch_events_student(subj_id[0]):
+        for subj_id in self.db.get_subjects_id(CURR_ID):
+            for element in self.db.fetch_events_student(subj_id[0]):
                 self.tree_event_tv.insert('', tk.END, values=element)
 
     def events_panel(self):
@@ -1290,7 +1293,7 @@ class Student(MainWindow):
                                     font=FONT_SETTINGS_1)
         self.login_label.place(x=160, y=100)
 
-        self.r_login_label = tk.Label(self.frame, text=db.get_login(CURR_ID), bg='snow',
+        self.r_login_label = tk.Label(self.frame, text=self.db.get_login(CURR_ID), bg='snow',
                                       fg=LABEL_FOREGROUND_COLOUR,
                                       font=FONT_SETTINGS_2,
                                       width=14)
@@ -1303,7 +1306,7 @@ class Student(MainWindow):
     def change_password(self):
         """Change password method."""
         if self.pass_text.get() and len(self.pass_text.get()) >= 6:
-            db.change_password(CURR_ID, self.pass_text.get())
+            self.db.change_password(CURR_ID, self.pass_text.get())
             self.pass_text.set('')
             self.pass_entry.delete(0, tk.END)
             messagebox.showinfo("Succes!", "Password has been changed!")
@@ -1329,9 +1332,9 @@ class Student(MainWindow):
 
     def show_student(self):
         """Show informations about logged student."""
-        self.student_data = db.get_fname_lname_class(CURR_ID)
-        self.text = 'Logged as: ' + self.student_data[0] + ' ' + self.student_data[1] + ' class: ' \
-                    + self.student_data[2]
+        self.student_data = self.db.get_fname_lname_class(CURR_ID)
+        self.text = "".join(["Logged as: ", self.student_data[0], " ", self.student_data[1],
+                             " class: ", self.student_data[2]])
         self.head_marks_l = tk.Label(self.frame, text=self.text, bg=INFO_BACKGROUND_COLOUR,
                                      fg=LABEL_FOREGROUND_COLOUR,
                                      font=FONT_SETTINGS_0)
@@ -1391,18 +1394,18 @@ class Student(MainWindow):
         """Put data into average marks treeview."""
         for i in self.tree_avg.get_children():
             self.tree_avg.delete(i)
-        for subj_id in db.get_subjects_id(CURR_ID):
-            grades = db.fetch_avg_student(CURR_ID, subj_id[0])
-            name = db.fetch_subj_name_student(subj_id[0])
+        for subj_id in self.db.get_subjects_id(CURR_ID):
+            grades = self.db.fetch_avg_student(CURR_ID, subj_id[0])
+            name = self.db.fetch_subj_name_student(subj_id[0])
             self.tree_avg.insert('', tk.END, values=name + grades)
 
     def show_marks(self):
         """Put ddata into marks treeview."""
         for i in self.tree_m.get_children():
             self.tree_m.delete(i)
-        for subj_id in db.get_subjects_id(CURR_ID):
-            grades = db.fetch_marks_student(CURR_ID, subj_id[0])
-            name = db.fetch_subj_name_student(subj_id[0])
+        for subj_id in self.db.get_subjects_id(CURR_ID):
+            grades = self.db.fetch_marks_student(CURR_ID, subj_id[0])
+            name = self.db.fetch_subj_name_student(subj_id[0])
             self.tree_m.insert('', tk.END, values=name + grades)
 
     # attendance
@@ -1448,9 +1451,9 @@ class Student(MainWindow):
         """Put data into average attendance treeview"""
         for item in self.tree_att.get_children():
             self.tree_att.delete(item)
-        for subj_id in db.get_subjects_id(CURR_ID):
-            att = db.fetch_att_student(CURR_ID, subj_id[0])
-            name = db.fetch_subj_name_student(subj_id[0])
+        for subj_id in self.db.get_subjects_id(CURR_ID):
+            att = self.db.fetch_att_student(CURR_ID, subj_id[0])
+            name = self.db.fetch_subj_name_student(subj_id[0])
             try:
                 self.tree_att.insert('', tk.END, values=name + [round(att[0][0], 2)])
             except TypeError:
@@ -1485,7 +1488,7 @@ class Student(MainWindow):
         self.att_text.set('Choose date')
         self.att_cb = ttk.Combobox(self.frame, textvariable=self.att_text, justify='center',
                                    state='readonly', width=29)
-        self.att_cb['values'] = db.fetch_date_cutted(CURR_ID)
+        self.att_cb['values'] = self.db.fetch_date_cutted(CURR_ID)
         self.att_cb.bind('<<ComboboxSelected>>', self.show_att_date)
         self.att_cb.place(x=150, y=68)
 
@@ -1493,7 +1496,7 @@ class Student(MainWindow):
         """Put data into attendance treeview."""
         for i in self.tree_att_s.get_children():
             self.tree_att_s.delete(i)
-        for subj_id in db.get_subjects_id(CURR_ID):
-            name = db.fetch_subj_name_student(subj_id[0])
-            att = db.fetch_att_student_date(CURR_ID, subj_id[0], self.att_cb.get())
+        for subj_id in self.db.get_subjects_id(CURR_ID):
+            name = self.db.fetch_subj_name_student(subj_id[0])
+            att = self.db.fetch_att_student_date(CURR_ID, subj_id[0], self.att_cb.get())
             self.tree_att_s.insert('', tk.END, values=name + att)

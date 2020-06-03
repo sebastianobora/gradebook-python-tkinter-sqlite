@@ -1,7 +1,8 @@
+import tkinter as tk
+
 import gradebook
-from tkinter import Tk
 
 if __name__ == "__main__":
-    root = Tk()
+    root = tk.Tk()
     gradebook.MainWindow(root).login_main()
     root.mainloop()
