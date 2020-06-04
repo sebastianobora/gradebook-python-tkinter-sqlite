@@ -8,7 +8,7 @@ from tkinter import ttk
 import db_admin
 
 # == Constants ==
-CURR_ID: str
+CURR_ID = None
 
 # colours
 
