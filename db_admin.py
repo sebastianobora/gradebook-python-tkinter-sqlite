@@ -134,8 +134,7 @@ class AdminDB(Database):
         name_subject, class_name FROM users LEFT JOIN users_subjects USING(user_id) 
         LEFT JOIN subjects USING(subject_id) WHERE birth_date LIKE ? ORDER BY fname""",
                             (year,))
-        u = self.cursor.fetchall()
-        return u
+        return self.cursor.fetchall()
 
     def add_class(self, name_subject, class_name):
         """Add new class and subject."""

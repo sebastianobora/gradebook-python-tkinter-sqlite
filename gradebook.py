@@ -1,7 +1,7 @@
 import copy
+import sqlite3
 import sys
 import tkinter as tk
-from sqlite3 import IntegrityError
 from tkinter import messagebox
 from tkinter import ttk
 
@@ -345,7 +345,7 @@ class Admin(MainWindow):
                 self.db.add_user(self.name_text.get(), self.lname_text.get(), self.email_text.get(),
                                  self.phone_text.get(),
                                  self.pesel_text.get(), self.birth_text.get(), self.perm.get())
-            except IntegrityError:
+            except sqlite3.IntegrityError:
                 messagebox.showerror("Error!",
                                      "Someone already has the same:\n pesel or\nphone number or\n "
                                      "email!")
@@ -380,7 +380,7 @@ class Admin(MainWindow):
                                 self.birth_text.get(),
                                 self.perm.get())
             self.show_list()
-        except IntegrityError:
+        except sqlite3.IntegrityError:
             messagebox.showerror("Warning!", "Wrong data!")
         except AttributeError:
             pass
