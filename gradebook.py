@@ -1397,7 +1397,10 @@ class Student(MainWindow):
         for subj_id in self.db.get_subjects_id(CURR_ID):
             grades = self.db.fetch_avg_student(CURR_ID, subj_id[0])
             name = self.db.fetch_subj_name_student(subj_id[0])
-            self.tree_avg.insert('', tk.END, values=name + grades)
+            try:
+                self.tree_avg.insert('', tk.END, values=name + [round(grades[0][0], 2)])
+            except TypeError:
+                pass
 
     def show_marks(self):
         """Put ddata into marks treeview."""
@@ -1415,7 +1418,7 @@ class Student(MainWindow):
         self.clear_frame()
         self.student_main()
         self.att_tree()
-        self.show_att_marks()
+        self.show_avg_att()
         self.att_s_tree()
         self.combo_att_s()
 
@@ -1447,7 +1450,7 @@ class Student(MainWindow):
         self.tree_att.configure(xscrollcommand=self.scroll_att_x.set)
         self.tree_att.configure(yscrollcommand=self.scroll_att_y.set)
 
-    def show_att_marks(self):
+    def show_avg_att(self):
         """Put data into average attendance treeview"""
         for item in self.tree_att.get_children():
             self.tree_att.delete(item)
@@ -1455,7 +1458,8 @@ class Student(MainWindow):
             att = self.db.fetch_att_student(CURR_ID, subj_id[0])
             name = self.db.fetch_subj_name_student(subj_id[0])
             try:
-                self.tree_att.insert('', tk.END, values=name + [round(att[0][0], 2)])
+                self.tree_att.insert('', tk.END,
+                                     values=name + ["".join([str(round(att[0][0], 2) * 100), "%"])])
             except TypeError:
                 pass
 
